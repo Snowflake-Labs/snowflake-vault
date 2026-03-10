@@ -19,7 +19,7 @@ import (
 	"log"
 	"os"
 
-	snowflake "github.com/bbhorrigan/vault-plugin-database-snowflake"
+	snowflake "github.com/sfc-gh-phorrigan/vault-plugin-database-snowflake"
 	dbplugin "github.com/hashicorp/vault/sdk/database/dbplugin/v5"
 )
 

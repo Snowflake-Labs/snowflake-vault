@@ -23,6 +23,9 @@ jobs:
         go-version-file: .go-version
         cache: true
     - name: Run Acceptance Tests
+      if: ${{ secrets.SNOWFLAKE_ACCOUNT != '' }}
+      env:
+        VAULT_ACC: 1
       run: make testacc
     - name: Run Test Build
       run: make dev
