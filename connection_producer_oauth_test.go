@@ -1,7 +1,6 @@
 // Copyright 2026 Snowflake Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-
 package snowflake
 
 import (
@@ -145,10 +144,10 @@ func TestValidateOAuthConfig(t *testing.T) {
 	}{
 		"valid config": {
 			config: map[string]interface{}{
-				"connection_url":      "testaccount.snowflakecomputing.com/testdb",
-				"username":            "vaultuser",
-				"oauth_client_id":     "my-client-id",
-				"oauth_client_secret": "my-client-secret",
+				"connection_url":       "testaccount.snowflakecomputing.com/testdb",
+				"username":             "vaultuser",
+				"oauth_client_id":      "my-client-id",
+				"oauth_client_secret":  "my-client-secret",
 				"oauth_token_endpoint": "https://myidp.example.com/oauth/token",
 			},
 		},
@@ -246,4 +245,4 @@ func TestValidateOAuthConfig(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
+}

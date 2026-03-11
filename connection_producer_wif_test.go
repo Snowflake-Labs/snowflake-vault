@@ -1,7 +1,6 @@
 // Copyright 2026 Snowflake Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-
 package snowflake
 
 import (
@@ -174,85 +173,85 @@ func TestValidateWIFConfig(t *testing.T) {
 	}{
 		"valid AWS provider": {
 			config: map[string]interface{}{
-				"connection_url":            "testaccount.snowflakecomputing.com/testdb",
-				"username":                  "vaultuser",
+				"connection_url":             "testaccount.snowflakecomputing.com/testdb",
+				"username":                   "vaultuser",
 				"workload_identity_provider": "AWS",
 			},
 		},
 		"valid GCP provider": {
 			config: map[string]interface{}{
-				"connection_url":            "testaccount.snowflakecomputing.com/testdb",
-				"username":                  "vaultuser",
+				"connection_url":             "testaccount.snowflakecomputing.com/testdb",
+				"username":                   "vaultuser",
 				"workload_identity_provider": "GCP",
 			},
 		},
 		"valid AZURE provider": {
 			config: map[string]interface{}{
-				"connection_url":            "testaccount.snowflakecomputing.com/testdb",
-				"username":                  "vaultuser",
+				"connection_url":             "testaccount.snowflakecomputing.com/testdb",
+				"username":                   "vaultuser",
 				"workload_identity_provider": "AZURE",
 			},
 		},
 		"valid AZURE provider with entra resource": {
 			config: map[string]interface{}{
-				"connection_url":                    "testaccount.snowflakecomputing.com/testdb",
-				"username":                          "vaultuser",
-				"workload_identity_provider":        "AZURE",
-				"workload_identity_entra_resource":  "api://my-resource",
+				"connection_url":                   "testaccount.snowflakecomputing.com/testdb",
+				"username":                         "vaultuser",
+				"workload_identity_provider":       "AZURE",
+				"workload_identity_entra_resource": "api://my-resource",
 			},
 		},
 		"valid OIDC provider with token": {
 			config: map[string]interface{}{
-				"connection_url":            "testaccount.snowflakecomputing.com/testdb",
-				"username":                  "vaultuser",
+				"connection_url":             "testaccount.snowflakecomputing.com/testdb",
+				"username":                   "vaultuser",
 				"workload_identity_provider": "OIDC",
 				"workload_identity_token":    "eyJhbGciOiJSUzI1NiJ9.test.token",
 			},
 		},
 		"lowercase provider is accepted": {
 			config: map[string]interface{}{
-				"connection_url":            "testaccount.snowflakecomputing.com/testdb",
-				"username":                  "vaultuser",
+				"connection_url":             "testaccount.snowflakecomputing.com/testdb",
+				"username":                   "vaultuser",
 				"workload_identity_provider": "aws",
 			},
 		},
 		"WIF and password are mutually exclusive": {
 			config: map[string]interface{}{
-				"connection_url":            "testaccount.snowflakecomputing.com/testdb",
-				"username":                  "vaultuser",
-				"password":                  "secret",
+				"connection_url":             "testaccount.snowflakecomputing.com/testdb",
+				"username":                   "vaultuser",
+				"password":                   "secret",
 				"workload_identity_provider": "AWS",
 			},
 			expectedError: ErrWIFMutuallyExclusive.Error(),
 		},
 		"WIF and private_key are mutually exclusive": {
 			config: map[string]interface{}{
-				"connection_url":            "testaccount.snowflakecomputing.com/testdb",
-				"username":                  "vaultuser",
-				"private_key":               []byte(testPrivateKey),
+				"connection_url":             "testaccount.snowflakecomputing.com/testdb",
+				"username":                   "vaultuser",
+				"private_key":                []byte(testPrivateKey),
 				"workload_identity_provider": "AWS",
 			},
 			expectedError: ErrWIFMutuallyExclusive.Error(),
 		},
 		"WIF requires username": {
 			config: map[string]interface{}{
-				"connection_url":            "testaccount.snowflakecomputing.com/testdb",
+				"connection_url":             "testaccount.snowflakecomputing.com/testdb",
 				"workload_identity_provider": "AWS",
 			},
 			expectedError: ErrWIFUsernameRequired.Error(),
 		},
 		"OIDC provider requires token": {
 			config: map[string]interface{}{
-				"connection_url":            "testaccount.snowflakecomputing.com/testdb",
-				"username":                  "vaultuser",
+				"connection_url":             "testaccount.snowflakecomputing.com/testdb",
+				"username":                   "vaultuser",
 				"workload_identity_provider": "OIDC",
 			},
 			expectedError: ErrWIFTokenRequired.Error(),
 		},
 		"invalid provider is rejected": {
 			config: map[string]interface{}{
-				"connection_url":            "testaccount.snowflakecomputing.com/testdb",
-				"username":                  "vaultuser",
+				"connection_url":             "testaccount.snowflakecomputing.com/testdb",
+				"username":                   "vaultuser",
 				"workload_identity_provider": "GITHUB",
 			},
 			expectedError: ErrWIFInvalidProvider.Error(),
@@ -272,4 +271,4 @@ func TestValidateWIFConfig(t *testing.T) {
 			require.NoError(t, err)
 		})
 	}
-}
+}
