@@ -1,10 +1,8 @@
-TOOL?=vault-plugin-database-snowflake
+TOOL?=snowflake-vault
 TEST?=$$(go list ./...)
-VETARGS?=-asmdecl -atomic -bool -buildtags -copylocks -methods -nilfunc -printf -rangeloops -shift -structtags -unsafeptr
-EXTERNAL_TOOLS=
 BUILD_TAGS?=${TOOL}
 GOFMT_FILES?=$$(find . -name '*.go')
-PLUGIN_NAME := $(shell command ls cmd/)
+PLUGIN_NAME := $(shell ls cmd/)
 PLUGIN_DIR ?= $$GOPATH/vault-plugins
 
 default: dev
@@ -22,7 +20,7 @@ dev: fmtcheck generate
 test: fmtcheck generate
 	CGO_ENABLED=0 VAULT_TOKEN= VAULT_ACC= go test -v -tags='$(BUILD_TAGS)' $(TEST) $(TESTARGS) -count=1 -timeout=20m -parallel=4
 
-# test runs the acceptance tests and vets the code
+# testacc runs the acceptance tests
 testacc: fmtcheck generate
 	CGO_ENABLED=0 VAULT_TOKEN= VAULT_ACC=1 go test -v -tags='$(BUILD_TAGS)' $(TEST) $(TESTARGS) -count=1 -timeout=20m -parallel=4
 
@@ -31,17 +29,9 @@ testcompile: fmtcheck generate
 		go test -v -c -tags='$(BUILD_TAGS)' $$pkg -parallel=4 ; \
 	done
 
-# generate runs `go generate` to build the dynamically generated
-# source files.
+# generate runs `go generate` to build the dynamically generated source files.
 generate:
-	go generate $(go list ./...)
-
-# bootstrap the build by downloading additional tools
-bootstrap:
-	@for tool in  $(EXTERNAL_TOOLS) ; do \
-		echo "Installing/Updating $$tool" ; \
-		go get -u $$tool; \
-	done
+	go generate $$(go list ./...)
 
 fmtcheck:
 	@sh -c "'$(CURDIR)/scripts/gofmtcheck.sh'"
@@ -57,4 +47,4 @@ configure: dev
 	$(PRIVATE_KEY) \
 	$(SNOWFLAKE_USERNAME)
 
-.PHONY: bin default generate test vet bootstrap fmt fmtcheck
+.PHONY: bin default generate test testacc testcompile fmt fmtcheck configure
