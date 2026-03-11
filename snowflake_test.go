@@ -88,7 +88,7 @@ func attemptDropUserKeyPair(connURL, adminUser string, adminPrivateKey []byte, u
 	}
 	defer db.Close()
 
-	_, err = db.Exec(fmt.Sprintf("DROP USER %s", username))
+	_, err = db.Exec(fmt.Sprintf("DROP USER \"%s\"", username))
 	if err != nil {
 		log.Printf("query issue: %s", err)
 	}
@@ -894,7 +894,7 @@ func attemptDropUser(connString, username string) {
 	}
 
 	defer db.Close()
-	_, err = db.Exec(fmt.Sprintf("DROP USER %s", username))
+	_, err = db.Exec(fmt.Sprintf("DROP USER \"%s\"", username))
 	if err != nil {
 		log.Printf("query issue: %s", err)
 	}
