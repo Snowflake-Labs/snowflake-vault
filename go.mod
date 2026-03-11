@@ -1,4 +1,4 @@
-module github.com/sfc-gh-phorrigan/vault-plugin-database-snowflake
+module github.com/Snowflake-Labs/snowflake-vault
 
 go 1.25.0
 

@@ -11,8 +11,8 @@ How was this change implemented?
 
 # Related Issues / Pull Requests
 
-[ ] [Issue #](https://github.com/sfc-gh-phorrigan/vault-plugin-database-snowflake/issues/)
-[ ] [PR #](https://github.com/sfc-gh-phorrigan/vault-plugin-database-snowflake/pulls/)
+[ ] [Issue #](https://github.com/Snowflake-Labs/snowflake-vault/issues/)
+[ ] [PR #](https://github.com/Snowflake-Labs/snowflake-vault/pulls/)
 
 # Contributor Checklist
 
