@@ -12,7 +12,7 @@ via the HashiCorp Vault Database Secrets Engine.
 
 ## Bugs and Feature Requests
 
-File issues at [sfc-gh-phorrigan/vault-plugin-database-snowflake/issues](https://github.com/sfc-gh-phorrigan/vault-plugin-database-snowflake/issues).
+File issues at [Snowflake-Labs/snowflake-vault/issues](https://github.com/Snowflake-Labs/snowflake-vault/issues).
 
 ## Quick Links
 
