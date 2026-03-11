@@ -1,7 +1,6 @@
 // Copyright 2026 Snowflake Inc.
 // SPDX-License-Identifier: MPL-2.0
 
-
 package snowflake
 
 import (
@@ -70,4 +69,4 @@ func getSnowflakeOAuthConfig(connectionURL, username, clientID, clientSecret, to
 	}
 
 	return cfg, nil
-}
+}
