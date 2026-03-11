@@ -43,7 +43,7 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-vault-plugin-database-snowflake
+snowflake-vault
 bin/
 pkg/
 scripts/custom/
