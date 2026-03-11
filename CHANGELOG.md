@@ -14,7 +14,7 @@ SECURITY:
 
 MAINTENANCE:
 
-* Update module path to `github.com/bbhorrigan/vault-plugin-database-snowflake`
+* Update module path to `github.com/Snowflake-Labs/snowflake-vault`
 * Replace HashiCorp-internal CI workflows with community equivalents
 * Add dependabot config for automated dependency updates
 * Update README, CODEOWNERS, and add MAINTAINERS.md
