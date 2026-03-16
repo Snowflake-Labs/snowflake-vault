@@ -120,6 +120,80 @@ vault write database/roles/my-role \
 
 ---
 
+## Cortex Quick-Start
+
+[Snowflake Cortex](https://docs.snowflake.com/en/user-guide/snowflake-cortex/overview) provides serverless LLM functions (`COMPLETE`, `SUMMARIZE`, `SENTIMENT`, `TRANSLATE`, `EMBED_TEXT_*`) and the [Cortex CLI](https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-cli) for AI-powered SQL and agent workflows.
+
+### 1. Enable `cortex_access` on the connection config
+
+Set `cortex_access=true` to automatically grant `SNOWFLAKE.CORTEX_USER` to every dynamic user created via this connection. This saves you from adding the grant to each role's `creation_statements`.
+
+```sh
+vault write database/config/my-snowflake \
+  plugin_name=vault-plugin-database-snowflake \
+  connection_url="<account>.snowflakecomputing.com/<database>" \
+  username="VAULT-SERVICE-USER" \
+  private_key=@/path/to/rsa_key_pkcs8.pem \
+  cortex_access=true \
+  allowed_roles="*"
+```
+
+### 2. Create a Cortex-ready role
+
+Use `credential_type=rsa_private_key` — key-pair is the recommended auth method for Cortex CLI and API integrations.
+
+```sh
+vault write database/roles/cortex-role \
+  db_name=my-snowflake \
+  credential_type=rsa_private_key \
+  creation_statements="
+    CREATE USER \"{{name}}\"
+      LOGIN_NAME='{{name}}'
+      RSA_PUBLIC_KEY='{{public_key}}'
+      DEFAULT_ROLE='PUBLIC'
+      DAYS_TO_EXPIRY={{expiration}}
+      COMMENT='Vault-managed Cortex user';
+    GRANT ROLE PUBLIC TO USER \"{{name}}\";
+  " \
+  default_ttl=8h \
+  max_ttl=24h
+```
+
+> The `SNOWFLAKE.CORTEX_USER` grant is appended automatically because `cortex_access=true`. You do not need to include it in `creation_statements`.
+
+### 3. Fetch credentials and connect with the Cortex CLI
+
+```sh
+# Retrieve a short-lived key pair
+vault read database/creds/cortex-role
+
+# Key             Value
+# rsa_private_key -----BEGIN RSA PRIVATE KEY-----...
+# username        v_token_cortex_role_xxxx_1234567890
+
+# Save the private key and connect via Cortex CLI
+vault read -field=rsa_private_key database/creds/cortex-role > /tmp/cortex_key.pem
+snow cortex complete --query "Explain Snowflake clustering in one sentence" \
+  --user <username> \
+  --private-key-path /tmp/cortex_key.pem
+```
+
+### Programmatic Access Tokens (PATs)
+
+Snowflake [Programmatic Access Tokens](https://docs.snowflake.com/en/user-guide/programmatic-access-tokens) are Bearer tokens that work with the Cortex CLI and REST API. Unlike password/key-pair credentials, Snowflake generates the token secret — Vault cannot return a Snowflake-generated PAT via the database secrets engine.
+
+This plugin ships PAT management helpers (`pat.go`) for use in companion tooling:
+
+| Function | Description |
+|----------|-------------|
+| `createPATForUser` | Issue a new PAT for an existing Snowflake user |
+| `revokePATForUser` | Revoke a named PAT (e.g. on lease expiry) |
+| `listPATsForUser` | List all PATs for a user (for audit/rotation) |
+
+For full PAT lifecycle management integrated with Vault leases, see the companion PAT plugin.
+
+---
+
 ## Setup
 
 A [scripted configuration](bootstrap/configure.sh) is available via `make configure`:

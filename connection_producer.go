@@ -65,6 +65,11 @@ type snowflakeConnectionProducer struct {
 	OAuthScope                    string      `json:"oauth_scope"`
 	UsernameTemplate              string      `json:"username_template"`
 	DisableEscaping               bool        `json:"disable_escaping"`
+	// CortexAccess, when true, automatically grants the SNOWFLAKE.CORTEX_USER
+	// database role to every user created via this connection. This enables
+	// Cortex LLM functions (COMPLETE, SUMMARIZE, SENTIMENT, etc.) and Cortex
+	// CLI access without additional manual configuration.
+	CortexAccess                  bool        `json:"cortex_access"`
 
 	Initialized           bool
 	RawConfig             map[string]any
