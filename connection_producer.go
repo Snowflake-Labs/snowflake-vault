@@ -69,7 +69,7 @@ type snowflakeConnectionProducer struct {
 	// database role to every user created via this connection. This enables
 	// Cortex LLM functions (COMPLETE, SUMMARIZE, SENTIMENT, etc.) and Cortex
 	// CLI access without additional manual configuration.
-	CortexAccess                  bool        `json:"cortex_access"`
+	CortexAccess bool `json:"cortex_access"`
 
 	Initialized           bool
 	RawConfig             map[string]any
