@@ -1,3 +1,18 @@
+## v0.17.0
+### March 23, 2026
+
+NEW FEATURES:
+
+* Add `cortex_access` connection config flag — when `true`, automatically grants `SNOWFLAKE.CORTEX_USER` to every dynamic user, enabling Cortex LLM functions and Cortex CLI without extra setup
+* Add default Cortex SQL constants (`defaultCortexUserCreationSQL`, `defaultCortexGrantSQL`) for use in Vault role `creation_statements`
+* Add PAT management helpers (`pat.go`) — `createPATForUser`, `revokePATForUser`, `listPATsForUser` for Programmatic Access Token lifecycle management in companion tooling
+
+MAINTENANCE:
+
+* Bump `github.com/hashicorp/vault/sdk` v0.23.0 -> v0.24.0
+
+---
+
 ## v0.16.0
 ### March 9, 2026
 
