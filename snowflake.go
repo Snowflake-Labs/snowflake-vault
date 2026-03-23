@@ -36,6 +36,32 @@ alter user {{name}} set RSA_PUBLIC_KEY = '{{public_key}}';
 drop user if exists {{name}};
 `
 	defaultUserNameTemplate = `{{ printf "v_%s_%s_%s_%s" (.DisplayName | truncate 32) (.RoleName | truncate 32) (random 20) (unix_time) | truncate 255 | replace "-" "_" }}`
+
+	// defaultCortexUserCreationSQL creates a minimal Snowflake user suitable for
+	// Cortex access using RSA key-pair authentication. This is the recommended
+	// credential type for Cortex CLI and API integrations.
+	//
+	// Use with credential_type=rsa_private_key on the Vault role.
+	defaultCortexUserCreationSQL = `
+CREATE USER "{{name}}"
+  LOGIN_NAME = '{{name}}'
+  RSA_PUBLIC_KEY = '{{public_key}}'
+  DEFAULT_ROLE = 'PUBLIC'
+  DAYS_TO_EXPIRY = {{expiration}}
+  COMMENT = 'Vault-managed Cortex user';
+`
+
+	// defaultCortexGrantSQL grants the SNOWFLAKE.CORTEX_USER database role to a
+	// user, enabling access to Snowflake Cortex LLM functions (COMPLETE, SUMMARIZE,
+	// SENTIMENT, TRANSLATE, EMBED_TEXT_*) and the Cortex CLI.
+	//
+	// This statement is automatically appended when cortex_access=true is set on
+	// the database connection config.
+	//
+	// Docs: https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-finetuning/set-up-cortex-finetuning#grant-the-cortex-user-database-role-to-a-snowflake-user
+	defaultCortexGrantSQL = `
+GRANT DATABASE ROLE SNOWFLAKE.CORTEX_USER TO USER "{{name}}";
+`
 )
 
 var _ dbplugin.Database = (*SnowflakeSQL)(nil)
@@ -171,6 +197,21 @@ func (s *SnowflakeSQL) NewUser(ctx context.Context, req dbplugin.NewUserRequest)
 
 			if err := dbtxn.ExecuteTxQueryDirect(ctx, tx, m, query); err != nil {
 				return dbplugin.NewUserResponse{}, err
+			}
+		}
+	}
+
+	// When cortex_access is enabled on the connection config, automatically
+	// grant SNOWFLAKE.CORTEX_USER to the new user so it can call Cortex LLM
+	// functions and use the Cortex CLI without extra manual setup.
+	if s.snowflakeConnectionProducer.CortexAccess {
+		for _, query := range strutil.ParseArbitraryStringSlice(defaultCortexGrantSQL, ";") {
+			query = strings.TrimSpace(query)
+			if len(query) == 0 {
+				continue
+			}
+			if err := dbtxn.ExecuteTxQueryDirect(ctx, tx, m, query); err != nil {
+				return dbplugin.NewUserResponse{}, fmt.Errorf("failed to grant Cortex access to user %q: %w", username, err)
 			}
 		}
 	}
