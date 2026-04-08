@@ -16,4 +16,4 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Run actionlint
-        uses: rhysd/actionlint@v1.7.11
+        uses: rhysd/actionlint@v1.7.12
