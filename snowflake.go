@@ -186,7 +186,19 @@ func (s *SnowflakeSQL) NewUser(ctx context.Context, req dbplugin.NewUserRequest)
 			req.CredentialType.String())
 	}
 
+	// dropUserOnErr issues a best-effort DROP USER IF EXISTS for the given
+	// username. Snowflake DDL (CREATE USER) does not roll back when a
+	// subsequent statement in the same transaction fails, so callers must
+	// explicitly compensate to avoid orphaned users.
+	dropUserOnErr := func(cause error) error {
+		if _, dropErr := db.ExecContext(ctx, fmt.Sprintf(`DROP USER IF EXISTS "%s"`, username)); dropErr != nil {
+			return fmt.Errorf("%w; also failed to clean up user %q: %v", cause, username, dropErr)
+		}
+		return cause
+	}
+
 	// Execute each query
+	var userCreated bool
 	for _, stmt := range statements {
 		// it's fine to split the statements on the semicolon.
 		for _, query := range strutil.ParseArbitraryStringSlice(stmt, ";") {
@@ -196,7 +208,14 @@ func (s *SnowflakeSQL) NewUser(ctx context.Context, req dbplugin.NewUserRequest)
 			}
 
 			if err := dbtxn.ExecuteTxQueryDirect(ctx, tx, m, query); err != nil {
+				if userCreated {
+					return dbplugin.NewUserResponse{}, dropUserOnErr(err)
+				}
 				return dbplugin.NewUserResponse{}, err
+			}
+
+			if !userCreated && strings.HasPrefix(strings.ToUpper(query), "CREATE USER") {
+				userCreated = true
 			}
 		}
 	}
@@ -211,7 +230,9 @@ func (s *SnowflakeSQL) NewUser(ctx context.Context, req dbplugin.NewUserRequest)
 				continue
 			}
 			if err := dbtxn.ExecuteTxQueryDirect(ctx, tx, m, query); err != nil {
-				return dbplugin.NewUserResponse{}, fmt.Errorf("failed to grant Cortex access to user %q: %w", username, err)
+				return dbplugin.NewUserResponse{}, dropUserOnErr(
+					fmt.Errorf("failed to grant Cortex access to user %q: %w", username, err),
+				)
 			}
 		}
 	}
