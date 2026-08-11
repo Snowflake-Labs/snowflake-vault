@@ -17,11 +17,13 @@ jobs:
       SNOWFLAKE_PRIVATE_KEY: ${{ secrets.SNOWFLAKE_PRIVATE_KEY }}
 
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-go@v5
+    - uses: actions/checkout@v6
+    - uses: actions/setup-go@v6
       with:
         go-version-file: .go-version
         cache: true
+    - name: Run unit tests
+      run: make test
     - name: Run Acceptance Tests
       if: env.SNOWFLAKE_ACCOUNT != ''
       env:
